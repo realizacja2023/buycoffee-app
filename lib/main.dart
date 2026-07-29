@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+// Ignores do zachowania kompatybilności wersji
+// ignore: depend_on_referenced_packages
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,10 +39,22 @@ class _BuyCoffeeScreenState extends State<BuyCoffeeScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = WebViewController()
+
+    final WebViewController controller = WebViewController();
+
+    controller
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
       ..loadRequest(Uri.parse('https://buycoffee.to'));
+
+    // Włączenie natywnego zapisywania ciasteczek i LocalStorage na Androidzie
+    if (controller.platform is AndroidWebViewController) {
+      AndroidWebViewController.enableDebugging(false);
+      (controller.platform as AndroidWebViewController)
+          .setDomStorageEnabled(true);
+    }
+
+    _controller = controller;
   }
 
   @override
@@ -48,7 +63,7 @@ class _BuyCoffeeScreenState extends State<BuyCoffeeScreen> {
       canPop: false,
       onPopInvoked: (didPop) async {
         if (didPop) return;
-        
+
         if (await _controller.canGoBack()) {
           await _controller.goBack();
         } else {

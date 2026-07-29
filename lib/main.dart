@@ -46,8 +46,9 @@ class _BuyCoffeeScreenState extends State<BuyCoffeeScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
+      onPopInvoked: (didPop) async {
         if (didPop) return;
+        
         if (await _controller.canGoBack()) {
           await _controller.goBack();
         } else {
